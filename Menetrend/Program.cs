@@ -8,21 +8,14 @@ using MudBlazor;
 using MudBlazor.Services;
 using MudExtensions.Services;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//builder.Services.AddAuthorization(options =>
-//{
-//    // By default, all incoming requests will be authorized according to the default policy
-//    options.FallbackPolicy = options.DefaultPolicy;
-//});
-
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddControllers(); // Hozzáadás az API vezérlõk támogatásához
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMudServices();
-
 
 // Add services to the container.
 builder.Services.Configure<DatabaseSettings>(
@@ -52,7 +45,6 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddTransient<MudLocalizer, DictionaryMudLocalizer>();
 builder.Services.AddMudExtensions();
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,11 +61,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-//app.UseAuthentication();
-
-//app.UseAuthorization();
-
-app.MapControllers();
+// Enable API Controllers
+app.MapControllers(); // Vezérlõk regisztrálása (pl. MathController használatához)
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 

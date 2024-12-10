@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "cdf6d200-e6f0-40d4-b415-25576f18124e",
+		"name": "Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40328960"
+	},
+	"item": [
+		{
+			"name": "euler",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://menetrend-app:80/api/math/euler",
+					"protocol": "http",
+					"host": [
+						"menetrend-app"
+					],
+					"port": "80",
+					"path": [
+						"api",
+						"math",
+						"euler"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fibonnaci",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://menetrend-app:80/api/math/fibonacci",
+					"protocol": "http",
+					"host": [
+						"menetrend-app"
+					],
+					"port": "80",
+					"path": [
+						"api",
+						"math",
+						"fibonacci"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "randomszam",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://menetrend-app:80/api/math/randomnumber",
+					"protocol": "http",
+					"host": [
+						"menetrend-app"
+					],
+					"port": "80",
+					"path": [
+						"api",
+						"math",
+						"randomnumber"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

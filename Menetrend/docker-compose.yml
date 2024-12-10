@@ -1,6 +1,8 @@
 version: '3.8'
 services:
   menetrend-app:
+    ports:
+      - "5000:80"
     build:
       context: .
       dockerfile: Dockerfile
@@ -72,7 +74,25 @@ services:
       - mongodb
       - nginx
       - bind9
-    
+      
+  newman:
+    image: postman/newman:alpine
+    container_name: newman
+    depends_on:
+      - menetrend-app
+    networks:
+      - menetrend-network
+    volumes:
+      - "C:/Menetrend/Menetrend/collections:/etc/newman"
+      - "C:/Menetrend/Menetrend/reports:/etc/reports"
+    entrypoint: >
+      newman run /etc/newman/my-collection.json
+      --environment /etc/newman/my-environment.json
+      --reporters cli,json
+      --reporter-json-export /etc/reports/newman-report.json &&
+      tail -f /dev/null
+
+   
 
 networks:
   menetrend-network:
