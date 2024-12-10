@@ -1,0 +1,89 @@
+﻿@page "/vonatDelete"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject VonatServices vonatService
+@inject NavigationManager NavigationManager
+
+@if (vonatList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudContainer Class="mt-2">
+        <MudPaper>
+            <MudDataGrid @ref="dataGrid" Items="@vonatList" Filterable="true" Groupable="true" GroupExpanded="false" Dense="true">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h5">Vonatok</MudText>
+                    <MudSpacer />
+                    <MudTooltip Text="Minden szűrő törlése">
+                        <MudIconButton Icon="@Icons.Material.Filled.FilterAltOff" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" Class="mr-4" OnClick="@ClearFilter" />
+                    </MudTooltip>
+                    <MudTooltip Text="Minden csoport kinyitása">
+                        <MudIconButton Icon="@Icons.Material.Filled.Expand" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" Class="mr-4" OnClick="@ExpandAllGroups" />
+                    </MudTooltip>
+                    <MudTooltip Text="Mindet csoport összecsukása">
+                        <MudIconButton Icon="@Icons.Material.Filled.Compress" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" OnClick="@CollapseAllGroups" />
+                    </MudTooltip>
+                </ToolBarContent>
+                <Columns>
+                    <HierarchyColumn T="Vonat" />
+                    <PropertyColumn Property="x => x.Szam" Title="Szám" Filterable="true" Sortable="true" Groupable="true" />
+                    <PropertyColumn Property="x => x.Tipus" Title="Típus" Filterable="true" Sortable="true" Groupable="true" />                    
+                    <TemplateColumn CellClass="d-flex justify-start" Title="Művelet" Groupable="false" Sortable="false">
+                        <CellTemplate>
+                            <MudTooltip Text="Töröl">
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Variant="Variant.Filled" OnClick="@( () => Delete(context.Item.Id) )" />
+                            </MudTooltip>
+                            <MudTooltip Text="Szerkeszt">
+                                <MudIconButton Class="mx-2" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Variant="Variant.Filled" Href=@($"vonatEdit/{context.Item.Id}") />
+                            </MudTooltip>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Models.Vonat" RowsPerPageString="Sor, oldalanként" PageSizeOptions="new int[] { 25, 50, 100 }" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+    </MudContainer>
+}
+@code {
+    private List<Menetrend.Models.Vonat>? vonatList { get; set; }
+    private Models.Vonat vonat = new Models.Vonat();
+    MudDataGrid<Models.Vonat> dataGrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vonatList = await vonatService.GetAll();
+    }
+
+
+    void ExpandAllGroups()
+    {
+        dataGrid?.ExpandAllGroups();
+    }
+
+    void CollapseAllGroups()
+    {
+        dataGrid?.CollapseAllGroups();
+    }
+
+    private void BackToList()
+    {
+        NavigationManager.NavigateTo("vonatDelete");
+    }
+
+    private async void Delete(string id)
+    {
+        await vonatService.RemoveAsync(id);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    public async Task ClearFilter()
+    {
+        await (dataGrid?.ClearFiltersAsync());
+    }
+}

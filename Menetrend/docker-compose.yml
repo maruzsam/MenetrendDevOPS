@@ -1,0 +1,83 @@
+version: '3.8'
+services:
+  menetrend-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: menetrendrepo_app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDB__ConnectionString=mongodb://root:Manager99@mongodb:27017
+    depends_on:
+      - mongodb
+    networks:
+      - menetrend-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: Manager99
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - menetrend-network
+
+  nginx:
+    image: nginx:latest
+    container_name: menetrendrepo_nginx
+    ports:
+      - "443:443"
+    volumes:
+      - "C:/Menetrend/Menetrend/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "C:/Menetrend/Menetrend/certs:/etc/nginx/certs:ro"
+    depends_on:
+      - menetrend-app
+    networks:
+      - menetrend-network
+
+
+  bind9:
+    image: internetsystemsconsortium/bind9:9.18
+    container_name: menetrendrepo_bind9
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./bind9:/etc/bind9
+    networks:
+      - menetrend-network
+    environment:
+      - TZ=Europe/Budapest
+    command: ["-g"]
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/google-containers/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - menetrend-network
+    depends_on:
+      - menetrend-app
+      - mongodb
+      - nginx
+      - bind9
+    
+
+networks:
+  menetrend-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  jenkins_home:

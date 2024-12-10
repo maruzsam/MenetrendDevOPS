@@ -1,0 +1,51 @@
+﻿@page "/jegy"
+@using Menetrend.Data
+@using Menetrend.Models
+@inject JegyServices jegyService
+
+
+
+<h3>Jegy</h3>
+
+
+@if (jegyList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ár</th>
+                <th>Járat ID</th>
+                <th>Akció ID</th>
+                <th>Érvényesség</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in jegyList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Ar</td>
+                    <td>@item.JaratID</td>
+                    <td>@item.AkcioID</td>
+                    <td>@item.Ervenyesseg</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Jegy>? jegyList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        jegyList = await jegyService.GetAll();
+    }
+}

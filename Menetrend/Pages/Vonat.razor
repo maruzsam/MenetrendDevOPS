@@ -1,0 +1,47 @@
+﻿@page "/vonat"
+@using Menetrend.Data
+@using Menetrend.Models
+@inject VonatServices vonatService
+
+
+
+<h3>Vonat</h3>
+
+
+@if (vonatList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Szám</th>
+                <th>Típus</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in vonatList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Szam</td>
+                    <td>@item.Tipus</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Vonat>? vonatList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        vonatList = await vonatService.GetAll();
+    }
+}

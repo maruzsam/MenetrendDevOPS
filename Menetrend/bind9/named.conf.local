@@ -1,0 +1,4 @@
+zone "menetrendapp" {
+    type master;
+    file "/etc/bind/db.menetrendapp";
+};

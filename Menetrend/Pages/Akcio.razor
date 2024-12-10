@@ -1,0 +1,47 @@
+﻿@page "/akcio"
+@using Menetrend.Data
+@using Menetrend.Models
+@inject AkcioServices akcioService
+
+
+
+<h3>Akció</h3>
+
+
+@if (akcioList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Leírás</th>
+                <th>Kedvezmény</th> 
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in akcioList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Leiras</td>
+                    <td>@item.Kedvezmeny</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Akcio>? akcioList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        akcioList = await akcioService.GetAll();
+    }
+}

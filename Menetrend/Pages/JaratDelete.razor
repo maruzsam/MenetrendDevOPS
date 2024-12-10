@@ -1,0 +1,98 @@
+﻿@page "/jaratDelete"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject JaratServices jaratService
+@inject AllomasServices allomasService
+@inject VonatServices vonatService
+@inject NavigationManager NavigationManager
+
+@if (jaratList == null || allomasList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudContainer Class="mt-2">
+        <MudPaper>
+            <MudDataGrid @ref="dataGrid" Items="@jaratList" Filterable="true" Groupable="true" GroupExpanded="false" Dense="true">
+                <ToolBarContent>                   
+                    <MudText Typo="Typo.h5">Járatok</MudText>
+                    <MudSpacer />
+                    <MudTooltip Text="Minden szűrő törlése">
+                        <MudIconButton Icon="@Icons.Material.Filled.FilterAltOff" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" Class="mr-4" OnClick="@ClearFilter" />
+                    </MudTooltip>
+                    <MudTooltip Text="Minden csoport kinyitása">
+                        <MudIconButton Icon="@Icons.Material.Filled.Expand" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" Class="mr-4" OnClick="@ExpandAllGroups" />
+                    </MudTooltip>
+                    <MudTooltip Text="Mindet csoport összecsukása">
+                        <MudIconButton Icon="@Icons.Material.Filled.Compress" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" OnClick="@CollapseAllGroups" />
+                    </MudTooltip>
+                </ToolBarContent>
+                <Columns>
+                    <HierarchyColumn T="Jarat" />
+                    <PropertyColumn Property="x => x.Indulas" Title="Indulás" Filterable="true" Sortable="true" Groupable="true" />
+                    <PropertyColumn Property="x => x.Erkezes" Title="Érkezés" Filterable="true" Sortable="true" Groupable="true" />
+                    <PropertyColumn Property="x => x.Indulo_allomasID" Title="Induló állomás" Filterable="true" Sortable="true" Groupable="true" />
+                    <PropertyColumn Property="x => x.Cel_allomasID" Title="Cél állomás" Filterable="true" Sortable="true" Groupable="true" />
+                    <PropertyColumn Property="x => x.VonatID" Title="Vonat" Filterable="true" Sortable="true" Groupable="true" />
+                    <TemplateColumn CellClass="d-flex justify-start" Title="Művelet" Groupable="false" Sortable="false" >
+                        <CellTemplate>
+                            <MudTooltip Text="Töröl">
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Variant="Variant.Filled" OnClick="@( () => Delete(context.Item.Id) )" />
+                            </MudTooltip>
+                            <MudTooltip Text="Szerkeszt">
+                                <MudIconButton Class="mx-2" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Variant="Variant.Filled" Href=@($"jaratEdit/{context.Item.Id}") />
+                            </MudTooltip>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Models.Jarat" RowsPerPageString="Sor, oldalanként" PageSizeOptions="new int[] { 25, 50, 100 }" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+    </MudContainer>
+}
+@code {
+    private List<Menetrend.Models.Jarat>? jaratList { get; set; }
+    private List<Menetrend.Models.Allomas>? allomasList { get; set; }
+    private List<Menetrend.Models.Vonat>? vonatList { get; set; }
+    private Models.Jarat jarat = new Models.Jarat();
+    MudDataGrid<Models.Jarat> dataGrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        jaratList = await jaratService.GetAll();
+        allomasList = await allomasService.GetAll();
+        vonatList = await vonatService.GetAll();
+    }
+
+
+    void ExpandAllGroups()
+    {
+        dataGrid?.ExpandAllGroups();
+    }
+
+    void CollapseAllGroups()
+    {
+        dataGrid?.CollapseAllGroups();
+    }
+
+    private void BackToList()
+    {
+        NavigationManager.NavigateTo("jaratDelete");
+    }
+
+    private async void Delete(string id)
+    {            
+        await jaratService.RemoveAsync(id);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    public async Task ClearFilter()
+    {
+        await (dataGrid?.ClearFiltersAsync());
+    }
+}

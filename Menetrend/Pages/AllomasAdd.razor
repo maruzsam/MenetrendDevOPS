@@ -1,0 +1,47 @@
+﻿@page "/allomasAdd"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject AllomasServices allomasService
+@inject VarosServices varosService
+@inject NavigationManager NavigationManager
+
+@if (varosList == null || allomasList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudPaper Elevation="2" Class="pa-5 mt-2">
+        <MudForm Model="@allomas">
+            <MudTextField Label="Név" @bind-Value="allomas.Nev" />            
+            <MudSelect Label="Város" @bind-Value="allomas.VarosID">
+                @foreach (var varos in varosList)
+                {
+                    <MudSelectItem Value="@varos.Id">@varos.Nev</MudSelectItem>
+                }
+            </MudSelect>            
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" class="mt-2" OnClick="Submit" Color="Color.Primary">Hozzáadás</MudButton>
+        </MudForm>
+    </MudPaper>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Allomas>? allomasList { get; set; }
+    private List<Menetrend.Models.Varos>? varosList { get; set; }
+    private Models.Allomas allomas = new Models.Allomas();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        allomasList = await allomasService.GetAll();
+        varosList = await varosService.GetAll();
+    }
+
+    private async Task Submit()
+    {
+        await allomasService.CreateAsync(allomas);
+    }
+}

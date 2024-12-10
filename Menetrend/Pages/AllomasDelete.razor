@@ -1,0 +1,92 @@
+﻿@page "/allomasDelete"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject AllomasServices allomasService
+@inject VarosServices varosService
+@inject NavigationManager NavigationManager
+
+@if (varosList == null || allomasList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudContainer Class="mt-2">
+        <MudPaper>
+            <MudDataGrid @ref="dataGrid" Items="@allomasList" Filterable="true" Groupable="true" GroupExpanded="false" Dense="true">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h5">Állomások</MudText>
+                    <MudSpacer />
+                    <MudTooltip Text="Minden szűrő törlése">
+                        <MudIconButton Icon="@Icons.Material.Filled.FilterAltOff" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" Class="mr-4" OnClick="@ClearFilter" />
+                    </MudTooltip>
+                    <MudTooltip Text="Minden csoport kinyitása">
+                        <MudIconButton Icon="@Icons.Material.Filled.Expand" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" Class="mr-4" OnClick="@ExpandAllGroups" />
+                    </MudTooltip>
+                    <MudTooltip Text="Mindet csoport összecsukása">
+                        <MudIconButton Icon="@Icons.Material.Filled.Compress" Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled" OnClick="@CollapseAllGroups" />
+                    </MudTooltip>
+                </ToolBarContent>
+                <Columns>
+                    <HierarchyColumn T="Allomas" />
+                    <PropertyColumn Property="x => x.Nev" Title="Név" Filterable="true" Sortable="true" Groupable="true" />
+                    <PropertyColumn Property="x => x.VarosID" Title="Város" Filterable="true" Sortable="true" Groupable="true" />                   
+                    <TemplateColumn CellClass="d-flex justify-start" Title="Művelet" Groupable="false" Sortable="false">
+                        <CellTemplate>
+                            <MudTooltip Text="Töröl">
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Variant="Variant.Filled" OnClick="@( () => Delete(context.Item.Id) )" />
+                            </MudTooltip>
+                            <MudTooltip Text="Szerkeszt">
+                                <MudIconButton Class="mx-2" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Variant="Variant.Filled" Href=@($"allomasEdit/{context.Item.Id}") />
+                            </MudTooltip>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Models.Allomas" RowsPerPageString="Sor, oldalanként" PageSizeOptions="new int[] { 25, 50, 100 }" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+    </MudContainer>
+}
+@code {
+    private List<Menetrend.Models.Allomas>? allomasList { get; set; }
+    private List<Menetrend.Models.Varos>? varosList { get; set; }
+    private Models.Allomas allomas = new Models.Allomas();
+    MudDataGrid<Models.Allomas> dataGrid;
+
+    protected override async Task OnInitializedAsync()
+    {        
+        allomasList = await allomasService.GetAll();
+        varosList = await varosService.GetAll();
+    }
+
+
+    void ExpandAllGroups()
+    {
+        dataGrid?.ExpandAllGroups();
+    }
+
+    void CollapseAllGroups()
+    {
+        dataGrid?.CollapseAllGroups();
+    }
+
+    private void BackToList()
+    {
+        NavigationManager.NavigateTo("varosDelete");
+    }
+
+    private async void Delete(string id)
+    {
+        await varosService.RemoveAsync(id);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    public async Task ClearFilter()
+    {
+        await (dataGrid?.ClearFiltersAsync());
+    }
+}

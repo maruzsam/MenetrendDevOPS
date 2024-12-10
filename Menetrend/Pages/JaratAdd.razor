@@ -1,0 +1,63 @@
+﻿@page "/jaratAdd"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject JaratServices jaratService
+@inject AllomasServices allomasService
+@inject VonatServices vonatService
+@inject NavigationManager NavigationManager
+
+@if (jaratList == null || allomasList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudPaper Elevation="2" Class="pa-5 mt-2">
+        <MudForm Model="@jarat" >
+            <MudTextField Label="Indulás" @bind-Value="jarat.Indulas" />            
+            <MudTextField Label="Érkezés" @bind-Value="jarat.Erkezes" />
+            <MudSelect Label="VonatID" @bind-Value="jarat.VonatID">
+                @foreach (var vonat in vonatList)
+                {
+                    <MudSelectItem Value="@vonat.Id">@vonat.Szam</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Induló állomás ID" @bind-Value="jarat.Indulo_allomasID">
+                @foreach (var allomas in allomasList)
+                {
+                    <MudSelectItem Value="@allomas.Id">@allomas.Nev</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Cél állomás ID" @bind-Value="jarat.Cel_allomasID">
+                @foreach (var allomas in allomasList)
+                {
+                    <MudSelectItem Value="@allomas.Id">@allomas.Nev</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" class="mt-2" OnClick="Submit" Color="Color.Primary">Hozzáadás</MudButton>
+        </MudForm>
+    </MudPaper>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Jarat>? jaratList { get; set; }
+    private List<Menetrend.Models.Allomas>? allomasList { get; set; }
+    private List<Menetrend.Models.Vonat>? vonatList { get; set; }
+    private Models.Jarat jarat = new Models.Jarat();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        jaratList = await jaratService.GetAll();
+        allomasList = await allomasService.GetAll();
+        vonatList = await vonatService.GetAll();
+    }
+
+    private async Task Submit()
+    {
+        await jaratService.CreateAsync(jarat);       
+    }
+}

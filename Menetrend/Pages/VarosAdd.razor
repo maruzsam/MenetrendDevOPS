@@ -1,0 +1,37 @@
+﻿@page "/varosAdd"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject VarosServices varosService
+@inject NavigationManager NavigationManager
+
+@if (varosList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudPaper Elevation="2" Class="pa-5 mt-2">
+        <MudForm Model="@varos">
+            <MudTextField Label="Név" @bind-Value="varos.Nev" />                   
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" class="mt-2" OnClick="Submit" Color="Color.Primary">Hozzáadás</MudButton>
+        </MudForm>
+    </MudPaper>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Varos>? varosList { get; set; }
+    private Models.Varos varos = new Models.Varos();
+
+    protected override async Task OnInitializedAsync()
+    {
+        varosList = await varosService.GetAll();
+    }
+
+    private async Task Submit()
+    {
+        await varosService.CreateAsync(varos);
+    }
+}

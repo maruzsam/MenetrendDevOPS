@@ -1,0 +1,95 @@
+﻿@page "/jaratBuy/{Id}"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject JaratServices jaratService
+@inject UtasServices utasService
+@inject JegyServices jegyService
+@inject AkcioServices akcioService
+@inject NavigationManager NavigationManager
+
+@if (jaratList == null || utasList == null || jegyList == null || akcioList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudPaper Elevation="2" Class="pa-5 mt-2">
+        <MudForm>
+            <MudSelect Dense="true" Label="Utas" T="string" @bind-Value="jegy.UtasID" Required="true" RequiredError="Kötelező megadni az utast.">
+                @foreach (var utas in utasList)
+                {
+                    <MudSelectItem Value="@utas.Id">@utas.Nev</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Dense="true" Label="Akció" T="string" Value="@AkcioID" ValueChanged="OnAkcioChange">
+                @foreach (var akcio in akcioList)
+                {
+                    <MudSelectItem Value="@akcio.Id">@akcio.Leiras - @akcio.Kedvezmeny %</MudSelectItem>
+                }
+            </MudSelect>     
+            <MudNumericField HideSpinButtons="true" Value="DoubleValue" Label="Jegy ára" ReadOnly="true" />
+            <MudButton Class="mt-1" Variant="Variant.Filled" Color="Color.Primary" OnClick="Vasarlas">Vásárlás</MudButton>
+        </MudForm>
+    </MudPaper>
+}
+
+@code {
+    [Parameter] public string Id { get; set; }
+    private List<Menetrend.Models.Jarat>? jaratList { get; set; }
+    private List<Menetrend.Models.Utas>? utasList { get; set; }
+    private List<Menetrend.Models.Jegy>? jegyList { get; set; }
+    private List<Menetrend.Models.Akcio>? akcioList { get; set; }
+    private Models.Jarat jarat = new Models.Jarat();
+    private Models.Jegy jegy = new Models.Jegy();
+    private Models.Akcio akcio = new Models.Akcio();
+    public double DoubleValue { get; set; } = 2000;
+    public decimal BasePrice { get; set; } = 2000;
+    public string AkcioID { get; set; }
+    private string actualAkcio;
+
+    protected override async Task OnInitializedAsync()
+    {
+        jaratList = await jaratService.GetAll();
+        utasList = await utasService.GetAll();
+        jegyList = await jegyService.GetAll();
+        akcioList = await akcioService.GetAll();
+        jarat = await jaratService.GetAsync(Id);
+        BasePrice = 2000; // Alapár beállítása
+        DoubleValue = (double)BasePrice; // Az aktuális ár
+    }
+
+    private async Task OnAkcioChange(string newValue)
+    {
+        AkcioID = newValue; // Frissítjük az AkcioID értékét
+        var selectedAkcio = akcioList.FirstOrDefault(a => a.Id == AkcioID);
+
+        if (selectedAkcio != null)
+        {
+            actualAkcio = AkcioID;
+            DoubleValue = (double)(BasePrice * (1 - (decimal)selectedAkcio.Kedvezmeny / 100));
+        }
+        else
+        {
+            DoubleValue = (double)BasePrice; // Alapár visszaállítása, ha nincs kiválasztva akció
+        }
+    }
+
+
+    private async Task Vasarlas()
+    {
+        if (string.IsNullOrWhiteSpace(jegy.UtasID))
+        {
+            return; // Az utas kiválasztása kötelező
+        }
+
+        jegy.AkcioID = actualAkcio;
+        jegy.JaratID = Id;
+        jegy.UtasID = jegy.UtasID;
+        jegy.Ar = (decimal)DoubleValue; // Az aktuális kedvezményes ár
+        jegy.Ervenyesseg = DateTime.Now.AddDays(30); // Példa érvényesség
+
+        await jegyService.CreateAsync(jegy);
+        NavigationManager.NavigateTo("/jarat"); // Sikeres vásárlás esetén navigálj el
+    }
+}

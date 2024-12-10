@@ -1,0 +1,57 @@
+﻿@page "/utas"
+@using Menetrend.Data
+@using Menetrend.Models
+@inject UtasServices utasService
+
+
+
+<h3>Utas</h3>
+
+
+@if (utasList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Jegy ID</th>
+                <th>Név</th>
+                <th>Személy Igazolvány Szám</th>
+                <th>Diák Igazolvány Szám</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in utasList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.JegyID</td>
+                    <td>@item.Nev</td>
+                    <td>@item.SzemelyIGsz</td>
+                    <td>@item.DiakIGsz</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Utas>? utasList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {            
+            utasList = await utasService.GetAll();
+        }catch(Exception ex)
+        {
+            throw ex;
+        }
+    }
+}

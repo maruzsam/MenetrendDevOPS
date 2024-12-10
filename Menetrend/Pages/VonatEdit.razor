@@ -1,0 +1,40 @@
+﻿@page "/vonatEdit/{Id}"
+@using Menetrend.Data
+@using Menetrend.Models
+@using MudBlazor
+@inject VonatServices vonatService
+@inject NavigationManager NavigationManager
+
+@if (vonatList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <MudContainer Class="mt-2">
+        <MudPaper Elevation="2" Class="pa-5 mt-2">
+            <MudForm Model="@vonat">
+                <MudTextField Label="Indulás" @bind-Value="vonat.Szam" />
+                <MudTextField Label="Érkezés" @bind-Value="vonat.Tipus" />                
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" class="mt-2" OnClick="Submit" Color="Color.Primary">Módosítás</MudButton>
+            </MudForm>
+        </MudPaper>
+    </MudContainer>
+}
+@code {
+    [Parameter] public string Id { get; set; }
+    private List<Menetrend.Models.Vonat>? vonatList { get; set; }
+    private Models.Vonat vonat = new Models.Vonat();
+    string MongoID;
+    MudDataGrid<Models.Vonat> dataGrid;
+    protected override async Task OnInitializedAsync()
+    {        
+        vonatList = await vonatService.GetAll();
+        vonat = await vonatService.GetAsync(Id);
+    }
+
+    private async Task Submit()
+    {
+        await vonatService.UpdateAsync(Id, vonat);
+    }
+}

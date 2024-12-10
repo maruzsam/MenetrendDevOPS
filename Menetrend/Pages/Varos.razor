@@ -1,0 +1,45 @@
+﻿@page "/varos"
+@using Menetrend.Data
+@using Menetrend.Models
+@inject VarosServices varosService
+
+
+
+<h3>Város</h3>
+
+
+@if (varosList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Név</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in varosList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Nev</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Varos>? varosList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        varosList = await varosService.GetAll();
+    }
+}

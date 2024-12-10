@@ -1,0 +1,49 @@
+﻿@page "/product"
+@using Menetrend.Data
+@using Menetrend.Models
+@inject ProductionServices productService
+
+
+
+<h3>Product</h3>
+
+
+@if (productList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ájdí</th>
+                <th>Náme</th>
+                <th>Prájsz</th>
+                <th>Kategöri</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in productList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Price</td>
+                    <td>@item.Category</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Product>? productList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        productList = await productService.GetAll();
+    }
+}

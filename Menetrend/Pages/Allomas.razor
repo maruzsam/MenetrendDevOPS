@@ -1,0 +1,47 @@
+﻿@page "/allomas"
+@using Menetrend.Data
+@using Menetrend.Models
+@inject AllomasServices allomasService
+
+
+
+<h3>Állomás</h3>
+
+
+@if (allomasList == null)
+{
+    <p><em>Lóding...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Név</th>
+                <th>VárosID</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in allomasList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Nev</td>
+                    <td>@item.VarosID</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<Menetrend.Models.Allomas>? allomasList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        allomasList = await allomasService.GetAll();
+    }
+}
