@@ -1,0 +1,6 @@
+FROM postman/newman:alpine
+
+COPY collections/my-collection.json /etc/newman/my-collection.json
+COPY collections/my-environment.json /etc/newman/my-environment.json
+
+ENTRYPOINT ["newman", "run", "/etc/newman/my-collection.json", "--environment", "/etc/newman/my-environment.json", "--reporters", "cli,json", "--reporter-json-export", "/etc/reports/newman-report.json && tail -f /dev/null"]
