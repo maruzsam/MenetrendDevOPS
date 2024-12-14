@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Forráskód elérhető, nincs szükség letöltésre.'
+            }
+        }
+        stage('Build and Deploy') {
+            steps {
+                echo 'Docker Compose alapú építés indul...'
+                sh '''
+                    cd /var/jenkins_home/workspace/MenetrendRepo
+                    docker-compose up -d
+                '''
+            }
+        }
+        stage('Run Newman Tests') {
+            steps {
+                echo 'Newman tesztek futtatása...'
+                sh '''
+                    cd /var/jenkins_home/workspace/MenetrendRepo
+                    docker-compose run --rm newman
+                '''
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline végrehajtása befejeződött.'
+            echo 'Newman teszt naplók begyűjtése...'
+            sh '''
+                cd /var/jenkins_home/workspace/MenetrendRepo
+                docker logs newman || echo "Nincsenek Newman logok, a konténer nem fut."
+            '''
+        }
+        failure {
+            echo 'Pipeline hibával leállt.'
+        }
+    }
+}
